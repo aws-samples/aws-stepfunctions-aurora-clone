@@ -1,0 +1,99 @@
+{
+    "Comment": "This is your state machine",
+    "StartAt": "Describe DB Cluster",
+    "States": {
+        "Describe DB Cluster": {
+            "Type": "Task",
+            "Parameters": {
+                "DbClusterIdentifier.$": "$.TargetDbClusterIdentifier"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:rds:describeDBClusters",
+            "Catch": [
+                {
+                    "ErrorEquals": [
+            "States.TaskFailed"
+          ],
+                    "Next": "Aurora Clone (CoW)",
+                    "ResultPath": "$.output",
+                    "Comment": "Cluster not found"
+        }
+      ],
+            "Next": "Cluster status?",
+            "ResultPath": "$.output"
+        },
+        "Cluster status?": {
+            "Type": "Choice",
+            "Choices": [
+                {
+                    "Variable": "$.output.DbClusters[0].Status",
+                    "StringEquals": "available",
+                    "Next": "Delete DB Instance"
+        },
+                {
+                    "Variable": "$.output.DbClusters[0].Status",
+                    "StringEquals": "deleting",
+                    "Next": "Wait"
+        }
+      ],
+            "Default": "Wait"
+        },
+        "Delete DB Instance": {
+            "Type": "Task",
+            "Next": "Delete DB Cluster",
+            "Parameters": {
+                "DbInstanceIdentifier.$": "$.TargetDbInstanceIdentifier",
+                "SkipFinalSnapshot": true,
+                "DeleteAutomatedBackups": true
+            },
+            "Resource": "arn:aws:states:::aws-sdk:rds:deleteDBInstance",
+            "ResultPath": "$.output"
+        },
+        "Aurora Clone (CoW)": {
+            "Type": "Task",
+            "Parameters": {
+                "DbClusterIdentifier.$": "$.TargetDbClusterIdentifier",
+                "RestoreType": "copy-on-write",
+                "SourceDBClusterIdentifier.$": "$.SourceDbClusterIdentifier",
+                "UseLatestRestorableTime": true,
+                "Port.$": "$.Port",
+                "DbSubnetGroupName.$": "$.TargetDbSubnetGroupName",
+                "VpcSecurityGroupIds.$": "$.TargetVpcSecurityGroupIds",
+                "Tags.$": "$.TargetTags",
+                "EnableIAMDatabaseAuthentication": false,
+                "DbClusterParameterGroupName.$": "$.TargetDbClusterParameterGroupName",
+                "DeletionProtection": false,
+                "CopyTagsToSnapshot": true
+            },
+            "Resource": "arn:aws:states:::aws-sdk:rds:restoreDBClusterToPointInTime",
+            "Next": "Create DB Instance",
+            "ResultPath": "$.output"
+        },
+        "Create DB Instance": {
+            "Type": "Task",
+            "End": true,
+            "Parameters": {
+                "DbInstanceClass.$": "$.TargetDbInstanceClass",
+                "DbInstanceIdentifier.$": "$.TargetDbInstanceIdentifier",
+                "DbClusterIdentifier.$": "$.TargetDbClusterIdentifier",
+                "Engine.$": "$.TargetDbEngine"
+            },
+            "Resource": "arn:aws:states:::aws-sdk:rds:createDBInstance",
+            "ResultPath": "$.output"
+        },
+        "Delete DB Cluster": {
+            "Type": "Task",
+            "Parameters": {
+                "DbClusterIdentifier.$": "$.TargetDbClusterIdentifier",
+                "SkipFinalSnapshot": true
+            },
+            "Resource": "arn:aws:states:::aws-sdk:rds:deleteDBCluster",
+            "Next": "Wait",
+            "ResultPath": "$.output"
+        },
+        "Wait": {
+            "Type": "Wait",
+            "Seconds": 30,
+            "Next": "Describe DB Cluster"
+        }
+    }
+}

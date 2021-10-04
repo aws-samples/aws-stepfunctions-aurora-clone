@@ -1,0 +1,19 @@
+{
+   "SourceDbClusterIdentifier": "app-prod",
+   "TargetDbClusterIdentifier": "app-staging",
+   "TargetDbInstanceIdentifier": "app-staging-instance-1",
+   "TargetDbSubnetGroupName": "sample",
+   "TargetDbInstanceClass": "db.t4g.medium",
+   "TargetDbEngine": "aurora-postgresql",
+   "TargetVpcSecurityGroupIds": [
+      "sg-01a02b03c"
+   ],
+   "TargetDbClusterParameterGroupName": "default.aurora-postgresql12",
+   "Port": 5432,
+   "TargetTags": [
+      {
+         "Key": "Environment",
+         "Value": "staging"
+      }
+   ]
+}

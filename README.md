@@ -1,11 +1,34 @@
-## My Project
+## aws-stepfunctions-aurora-clone
 
-TODO: Fill this README out!
+The goal of this project is to create an Aurora Clone using AWS StepFunctions so you can call it using an Amazon EventBridge Rule or from your CI/CD Pipeline.
 
-Be sure to:
+You can check the main use cases for Aurora Clone [here.](https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/Aurora.Managing.Clone.html#Aurora.Clone.Overview)
 
-* Change the title in this README
-* Edit your repository description on GitHub
+![StepFunctions Graph](stepfunctions_graph.png "StepFunctions Graph")
+
+The workflow is designed to guarantee a fresh clone, meaning it will delete the target cluster, if it exists, before cloning. This is particularly useful if you need to create clones on a schedule.
+
+We provide a sample payload for the workflow execution, but you must change it to fit your scenario.
+
+```typescript
+const event = {
+  SourceDBClusterIdentifier: "app-prod",
+  TargetDBClusterIdentifier: "app-staging",
+  TargetDBInstanceIdentifier: "app-staging-instance-1",
+  TargetDBSubnetGroupName: "sample",
+  TargetDBInstanceClass: "db.t4g.medium",
+  TargetDBEngine: "aurora-postgresql",
+  TargetVpcSecurityGroupIds: ["sg-0a1b2c3d"],
+  TargetDBClusterParameterGroupName: "default.aurora-postgresql11",
+  Port: 5432,
+  TargetTags: [
+    {
+      Key: "Environment",
+      Value: "staging",
+    },
+  ],
+};
+```
 
 ## Security
 
