@@ -12,7 +12,7 @@
   },
   "license": "MIT-0",
   "devDependencies": {
-    "@aws-cdk/assert": "1.121.0",
+    "@aws-cdk/assert": "1.199.0",
     "@types/jest": "^26.0.10",
     "@types/node": "10.17.27",
     "jest": "^26.4.2",
@@ -23,10 +23,10 @@
   },
   "dependencies": {
     "@aws-cdk/core": "1.121.0",
-    "@aws-cdk/aws-stepfunctions": "1.121.0",
-    "@aws-cdk/aws-stepfunctions-tasks": "1.121.0",
+    "@aws-cdk/aws-stepfunctions": "1.199.0",
+    "@aws-cdk/aws-stepfunctions-tasks": "1.199.0",
     "@aws-cdk/aws-lambda": "1.121.0",
-    "@aws-cdk/aws-events-targets": "1.121.0",
+    "@aws-cdk/aws-events-targets": "1.199.0",
     "source-map-support": "^0.5.16"
   }
 }
