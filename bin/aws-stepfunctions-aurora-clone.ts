@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-import 'source-map-support/register';
-import * as cdk from '@aws-cdk/core';
+import * as cdk from 'aws-cdk-lib';                 // core constructs
 import { AwsStepfunctionsAuroraCloneStack } from '../lib/aws-stepfunctions-aurora-clone-stack';
 
 const app = new cdk.App();

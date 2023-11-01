@@ -1,15 +1,16 @@
-import * as cdk from "@aws-cdk/core";
-import * as events from "@aws-cdk/aws-events";
-import * as targets from "@aws-cdk/aws-events-targets";
-import * as iam from "@aws-cdk/aws-iam";
-import * as lambda from "@aws-cdk/aws-lambda";
-import * as sfn from "@aws-cdk/aws-stepfunctions";
-import * as tasks from "@aws-cdk/aws-stepfunctions-tasks";
+import * as cdk from 'aws-cdk-lib';                 // core constructs
+import * as events from "aws-cdk-lib/aws-events";
+import * as targets from "aws-cdk-lib/aws-events-targets";
+import * as iam from "aws-cdk-lib/aws-iam";
+import * as lambda from "aws-cdk-lib/aws-lambda";
+import * as sfn from "aws-cdk-lib/aws-stepfunctions";
+import * as tasks from "aws-cdk-lib/aws-stepfunctions-tasks";
 import * as path from "path";
+import { Construct } from 'constructs';
 import { readFileSync } from "fs";
 
 export class AwsStepfunctionsAuroraCloneStack extends cdk.Stack {
-  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
     const auroraCloneLambda = new lambda.Function(this, "AuroraCloneLambda", {
@@ -121,15 +122,15 @@ export class AwsStepfunctionsAuroraCloneStack extends cdk.Stack {
       auroraCloneJob
     );
 
-    const definition = checkStatusJob.next(clusterExists);
+    const startState = checkStatusJob.next(clusterExists);
 
     const auroraCloneStateMachine = new sfn.StateMachine(
       this,
       "AuroraCloneStateMachine",
       {
-        stateMachineName: "AuroraCloneSourceCluster",
-        definition,
-        timeout: cdk.Duration.minutes(5),
+          stateMachineName: "AuroraCloneSourceCluster",
+          definitionBody: sfn.DefinitionBody.fromChainable(startState),
+          timeout: cdk.Duration.minutes(5)
       }
     );
 
